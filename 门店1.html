@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>门店位置标注</title>
+    <script src="https://api.map.baidu.com/api?v=3.0&ak=HOPVmHU6VkFDYS1y4NN6Y6WdIjz2ou12"></script>
+</head>
+<body>
+    <div id="map" style="width: 100%; height: 800px;"></div>
+    <script>
+        // 初始化地图，以西安市为中心
+        var map = new BMap.Map("map");
+        map.centerAndZoom(new BMap.Point(108.935356, 34.316958), 12);
+        map.enableScrollWheelZoom(true); // 允许鼠标滚轮缩放
+
+        // 从CSV读取数据（需将CSV数据转为JavaScript数组）
+        var locations = [
+            { lng: 109.887336, lat: 33.534874, name: "商洛城关镇国宁美的旗舰店" },
+            { lng: 109.229541, lat: 34.382779, name: "西安骊山街道迅达美的旗舰店" },
+            { lat: 33.534874, lng: 109.887336, name: "商洛城关镇国宁美的旗舰店", storeId: "S00001476" },
+            { lat: 34.382779, lng: 109.229541, name: "西安骊山街道迅达美的旗舰店", storeId: "S00001949" },
+            { lat: 34.91718, lng: 108.98016, name: "铜川锦阳路街道万家乐美的旗舰店", storeId: "S00002310" },
+            { lat: 34.316958, lng: 108.935356, name: "居然之家西安北二环商场美的前装店", storeId: "S00218631" },
+            { lat: 34.32126, lng: 109.001309, name: "红星美凯龙西安1号店美的旗舰店（建材）", storeId: "S00283290" },
+            { lat: 34.27146, lng: 109.05569, name: "大明宫西安东三环商场美的前装店（1层）", storeId: "S00283586" },
+            { lat: 34.301346, lng: 108.831096, name: "西安西大明宫美的旗舰店（建材）", storeId: "S00743605" },
+            { lat: 34.318558, lng: 108.976204, name: "西安北大明宫美的旗舰店（建材）", storeId: "S00776320" },
+            { lat: 33.530195, lng: 109.900392, name: "商洛山阳县体育场美的旗舰店", storeId: "S00767287" },
+            { lat: 34.082417, lng: 110.13473, name: "洛南县鑫泰商贸城蓝海之星美的旗舰店（建材）", storeId: "S00767964" },
+            { lat: 34.157391, lng: 109.323548, name: "西安蓝关镇美恒丰美的旗舰店", storeId: "S00002652" },
+            { lat: 33.716843, lng: 110.26347, name: "商洛丹凤县商镇汉皓街美的旗舰店", storeId: "S00932067" },
+            { lat: 34.167232, lng: 108.961973, name: "西安航天西路居然之家美的旗舰店（建材）", storeId: "S00859184" },
+            { lat: 34.278256, lng: 109.003018, name: "西安胡家庙街道金花美的旗舰店", storeId: "S00007614" },
+            { lat: 34.372462, lng: 108.988225, name: "西安仁德建材全屋智能家装体验馆", storeId: "S00283815" },
+            { lat: 34.240161, lng: 108.930991, name: "红星美凯龙西安太白商场全屋智能家装体验馆", storeId: "S00283702" },
+            { lat: 33.535896, lng: 110.893467, name: "商洛商南县城关齐星美的旗舰店", storeId: "S00887544" },
+            { lat: 34.234207, lng: 109.03046, name: "西安和记万佳美的旗舰店（建材）", storeId: "S00772876" },
+            { lat: 34.276499, lng: 109.008962, name: "西安新城区新辉航美的旗舰店", storeId: "S00007946" },
+            { lat: 34.168056, lng: 108.86871, name: "西安长安区西沣路大明宫裕龙美的旗舰店（建材）", storeId: "S00283585" },
+            { lat: 34.16433, lng: 108.22006, name: "西安二曲镇红发美的旗舰店", storeId: "S00002828" },
+            { lat: 34.244915, lng: 108.9948, name: "西安雁塔区茂松建伟美的旗舰店", storeId: "S00874897" },
+            { lat: 34.121628, lng: 108.61613, name: "鄠邑区长虹广场美的旗舰店", storeId: "S00739710" },
+            { lat: 34.382779, lng: 109.229541, name: "西安骊山街道隆信美的旗舰店", storeId: "S00747683" },
+            { lat: 34.199295, lng: 108.95429, name: "西安曲江居然之家美的旗舰店（建材）", storeId: "S00779912" },
+            { lat: 34.90609, lng: 108.96045, name: "铜川居然之家美的旗舰店（建材）", storeId: "S00920595" },
+            { lat: 34.249831, lng: 108.968406, name: "西安碑林区李家村万达美的旗舰店", storeId: "S00876890" },
+            { lat: 34.67133, lng: 109.22755, name: "西安阎良区鸿盛通和美的旗舰店", storeId: "S00002781" },
+            { lat: 34.169283, lng: 108.939081, name: "西安长安区众盛久越美的旗舰店", storeId: "S00760856" },
+            { lat: 34.471726, lng: 109.010001, name: "西安高陵区盛鑫美源美的旗舰店", storeId: "S00753625" },
+            { lat: 34.315403, lng: 108.965366, name: "西安明珠商场美的旗舰店（建材）", storeId: "S00917545" },
+            { lat: 34.30556, lng: 108.9516, name: "西安盛龙广场红星美凯龙美的旗舰店（建材）", storeId: "S00772745" },
+            { lat: 34.215499, lng: 108.938569, name: "西安雁塔区含光路美的旗舰店", storeId: "S00846019" },
+            { lat: 34.665539, lng: 109.2275, name: "西安凤凰路街道高光美的旗舰店", storeId: "S00848032" },
+            { lat: 34.114306, lng: 108.626731, name: "西安鄠邑区乘丰启航美的旗舰店", storeId: "S00007397" },
+            { lat: 34.665539, lng: 109.2275, name: "西安凤凰路街道高光美的旗舰店", storeId: "S00848032" },
+            { lat: 34.114306, lng: 108.626731, name: "西安鄠邑区乘丰启航美的旗舰店", storeId: "S00007397" },
+            { lat: 34.691074, lng: 109.316726, name: "西安关山街道孟师美的旗舰店", storeId: "S00007798" },
+            { lat: 33.871628, lng: 109.9291, name: "商洛市商州晨光居然之家美的旗舰店（建材）", storeId: "S00848971" }// 其他门店数据...
+        ];
+
+        // 遍历坐标添加标注
+        for (var i = 0; i < locations.length; i++) {
+            var point = new BMap.Point(locations[i].lng, locations[i].lat);
+            var marker = new BMap.Marker(point);
+            map.addOverlay(marker);
+            
+            // 添加信息窗口（可选）
+            var label = new BMap.Label(locations[i].name, {
+                offset: new BMap.Size(20, -10)
+            });
+            marker.setLabel(label);
+        }
+    </script>
+</body>
+</html>
